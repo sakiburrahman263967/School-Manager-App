@@ -18,8 +18,8 @@
     --shadow-lg: 0 12px 24px -4px rgba(27, 94, 32, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
     
     /* Sleek spring animations */
-    --transition-fast: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-fast: 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --transition-bounce: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 * {
@@ -156,13 +156,13 @@ body {
     border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .sidebar-link:hover {
     background-color: rgba(255, 255, 255, 0.08);
     color: #ffffff;
-    padding-left: 21px;
+    transform: translateX(4px);
 }
 
 .sidebar-link.active {
@@ -886,3 +886,480 @@ tbody tr:hover {
         font-size: 26px;
     }
 }
+
+/* ==========================================================================
+   DYNAMIC PALETTES & GRAPHICS ENHANCEMENT
+   ========================================================================== */
+
+/* Corporate Super Admin Theme Override */
+.theme-superadmin {
+    --primary-color: #3b82f6;          /* Corporate Blue */
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+    --accent-gold: #3b82f6;
+    --accent-gold-light: #f1f5f9;
+    --bg-light: #f8fafc;
+    background-color: #f8fafc;
+}
+.theme-superadmin #sidebar {
+    background-color: #0f172a;
+    border-right: 3px solid #3b82f6 ;
+}
+.theme-superadmin .sidebar-link.active {
+    background-color: #3b82f6;
+    border-left: 4px solid #ffffff;
+}
+
+/* School Admin Theme Override */
+.theme-schooladmin {
+    --primary-color: #14b8a6;          /* Teal */
+    --primary-dark: #0f766e;
+    --primary-light: #f0fdfa;
+    --accent-gold: #10b981;
+    --accent-gold-light: #ecfdf5;
+    --bg-light: #f9fafb;
+}
+.theme-schooladmin #sidebar {
+    background-color: #111827;
+    border-right: 3px solid #14b8a6;
+}
+.theme-schooladmin .sidebar-link.active {
+    background-color: #14b8a6;
+    border-left: 4px solid #ffffff;
+}
+
+/* Office & Staff Admin Theme Override */
+.theme-officeadmin {
+    --primary-color: #a855f7;          /* Purple & Pastels */
+    --primary-dark: #7e22ce;
+    --primary-light: #faf5ff;
+    --accent-gold: #ec4899;            /* Pink */
+    --accent-gold-light: #fdf2f8;
+    --bg-light: #f5f3ff;
+}
+.theme-officeadmin #sidebar {
+    background-color: #1e1b4b;
+    border-right: 3px solid #a855f7;
+}
+.theme-officeadmin .sidebar-link.active {
+    background-color: #a855f7;
+    border-left: 4px solid #ec4899;
+}
+
+/* Teacher Dashboard Theme Override */
+.theme-teacher {
+    --primary-color: #4f46e5;          /* Indigo & Orange accent */
+    --primary-dark: #3730a3;
+    --primary-light: #e0e7ff;
+    --accent-gold: #f97316;
+    --accent-gold-light: #fff7ed;
+    --bg-light: #fafaff;
+}
+.theme-teacher #sidebar {
+    background-color: #111827;
+    border-right: 3px solid #4f46e5;
+}
+.theme-teacher .sidebar-link.active {
+    background-color: #4f46e5;
+    border-left: 4px solid #f97316;
+}
+
+/* Student & Parent Portal Theme Override */
+.theme-student {
+    --primary-color: #a855f7;          /* Purple-pink dynamic gradient */
+    --primary-dark: #6b21a8;
+    --primary-light: #fdf2f8;
+    --accent-gold: #ec4899;
+    --accent-gold-light: #fdf2f8;
+    --bg-light: #f8fafc;
+}
+.theme-student #sidebar {
+    background: linear-gradient(180deg, #1e1b4b 0%, #311042 100%);
+    border-right: 3px solid #ec4899;
+}
+.theme-student .sidebar-link.active {
+    background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+    border-left: 4px solid #ffffff;
+}
+
+/* Universal Redesign Elements */
+.tab-navigation {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 25px;
+    gap: 8px;
+    padding-bottom: 2px;
+}
+.tab-btn {
+    padding: 12px 22px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Two Column Flex Row */
+.chart-flex-row {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+.chart-card-wrapper {
+    flex: 1;
+    min-width: 320px;
+    background-color: var(--bg-white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    border-top: 4px solid var(--primary-color);
+}
+.chart-title-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    font-weight: 500;
+}
+
+/* Dynamic CSS Chart Frameworks */
+.chart-bar-container {
+    height: 220px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 10px 10px 0;
+    border-bottom: 2px solid #e2e8f0;
+    position: relative;
+    margin-top: 15px;
+}
+.chart-y-gridline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #f1f5f9;
+    z-index: 1;
+}
+.chart-bar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    z-index: 2;
+    max-width: 50px;
+}
+.chart-bar-pillar {
+    width: 22px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+.chart-bar-pillar.primary {
+    background-color: var(--primary-color);
+}
+.chart-bar-pillar.accent {
+    background-color: var(--accent-gold);
+}
+.chart-bar-pillar.gray {
+    background-color: #94a3b8;
+}
+.chart-bar-value {
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+.chart-bar-label {
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* Line Chart Simulator */
+.svg-chart-container {
+    height: 220px;
+    width: 100%;
+    position: relative;
+    border-bottom: 2px solid #e2e8f0;
+}
+.svg-chart-labels-offset {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* Support Ticket Priority Indicators */
+.priority-high {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+.priority-medium {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+.priority-low {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+/* Glassmorphism Styles for Student Dashboard */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.08);
+}
+.gradient-header-box {
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+.accent-gradient-card {
+    background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+    color: #ffffff;
+    border: none !important;
+}
+
+/* Circular GPA Badges & Metric Circles */
+.circular-metric-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border: 2px solid var(--primary-color);
+}
+.circular-metric-box.pink {
+    background: #fdf2f8;
+    color: #9d174d;
+    border: 2px solid #ec4899;
+}
+.circular-metric-box.orange {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 2px solid #f97316;
+}
+
+/* Notice board list styling */
+.priority-border-notice {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    border-left: 5px solid;
+    margin-bottom: 12px;
+    transition: transform var(--transition-fast);
+}
+.priority-border-notice:hover {
+    transform: translateX(4px);
+}
+.priority-border-notice.high {
+    border-left-color: #ef4444;
+}
+.priority-border-notice.medium {
+    border-left-color: #f59e0b;
+}
+.priority-border-notice.low {
+    border-left-color: #3b82f6;
+}
+
+/* Calendar Card layout */
+.academic-calendar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.calendar-item {
+    display: flex;
+    background-color: #f8fafc;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+.calendar-date-badge {
+    width: 65px;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    padding: 10px;
+    text-align: center;
+    line-height: 1.2;
+}
+.calendar-date-badge span {
+    font-size: 20px;
+}
+.calendar-info-body {
+    padding: 12px 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.calendar-info-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+.calendar-info-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Salary Management metric items */
+.salary-metric-group {
+    display: flex;
+    gap: 16px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+.salary-metric-box {
+    flex: 1;
+    min-width: 140px;
+    background-color: #faf8f5;
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+}
+.salary-metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.salary-metric-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-top: 4px;
+}
+
+/* Timeline Components */
+.timeline-list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-left: 20px;
+}
+.timeline-list::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background-color: #e2e8f0;
+}
+.timeline-node {
+    margin-bottom: 20px;
+    position: relative;
+}
+.timeline-node::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 3px var(--primary-light);
+    z-index: 2;
+}
+.timeline-node-body {
+    background-color: #f8fafc;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Drag & Drop File Upload Area */
+.dropzone-container {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    background-color: #f8fafc;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.dropzone-container:hover {
+    border-color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+/* Routine timetable slots */
+.timetable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.timetable-slot {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    background-color: #fbfbfc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    gap: 12px;
+}
+.timetable-time {
+    width: 110px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+.timetable-meta {
+    flex-grow: 1;
+}
+.timetable-title {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--text-dark);
+}
+.timetable-subtitle {
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+

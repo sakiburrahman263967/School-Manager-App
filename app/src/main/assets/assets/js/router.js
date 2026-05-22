@@ -37,12 +37,14 @@ const Router = {
         
         if (!user) {
             // Unauthenticated
+            document.body.className = "theme-superadmin"; // Clean login backdrop theme
             appShell.style.display = "block";
             this.renderLogin();
             return;
         }
 
         // Authenticated
+        document.body.className = "theme-" + user.role;
         appShell.style.display = "flex";
         this.renderSidebarAndHeader(user);
 
@@ -56,6 +58,8 @@ const Router = {
             }
         } else if (user.role === "schooladmin" || (user.role === "superadmin" && Auth.isViewOnlyMode())) {
             this.renderSchoolAdmin();
+        } else if (user.role === "officeadmin") {
+            this.renderOfficeAdmin();
         } else if (user.role === "teacher") {
             this.renderTeacher();
         } else if (user.role === "student") {
@@ -101,6 +105,7 @@ const Router = {
                         <div class="login-tab active" data-role="student" onclick="App.switchLoginTab('student')">${Utils.t("student_parent_portal")}</div>
                         <div class="login-tab" data-role="teacher" onclick="App.switchLoginTab('teacher')">Teacher</div>
                         <div class="login-tab" data-role="schooladmin" onclick="App.switchLoginTab('schooladmin')">Admin</div>
+                        <div class="login-tab" data-role="officeadmin" onclick="App.switchLoginTab('officeadmin')">Office Staff</div>
                         <div class="login-tab" data-role="superadmin" onclick="App.switchLoginTab('superadmin')">SaaS Owner</div>
                     </div>
 
@@ -175,6 +180,10 @@ const Router = {
                 { route: "results", label: Utils.t("results_system"), icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>` },
                 { route: "notices", label: Utils.t("notices"), icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>` },
                 { route: "settings", label: Utils.t("settings"), icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>` }
+            ];
+        } else if (user.role === "officeadmin") {
+            sidebarLinks = [
+                { route: "dashboard", label: "Operations Desk", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 21a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"/></svg>` }
             ];
         } else if (user.role === "teacher") {
             sidebarLinks = [
@@ -299,114 +308,252 @@ const Router = {
         return `#${rHex}${gHex}${bHex}`;
     },
 
-    // ==========================================
-    // 2. RENDER SUPER ADMIN DASHBOARD
-    // ==========================================
-    renderSuperAdmin: function() {
+    // ================================    renderSuperAdmin: function() {
         const stats = Storage.getGlobalStats();
         const schools = Storage.getSchools();
         const contentContainer = document.getElementById("content-area");
 
         contentContainer.innerHTML = `
-            <h2>👑 Platform Super Admin Console</h2>
-            <p class="text-muted" style="margin-bottom: 25px;">Create, activate, suspend schools, track global register stats, and monitor systems.</p>
-
-            <!-- Grid statistics -->
-            <div class="grid-container">
-                <div class="card">
-                    <div class="card-title">${Utils.t("total_schools")}</div>
-                    <div class="card-value">${stats.totalSchools}</div>
-                    <div class="card-subtitle">Registered Tenancies</div>
-                </div>
-                <div class="card" style="border-top-color: #22c55e;">
-                    <div class="card-title">${Utils.t("active_schools")}</div>
-                    <div class="card-value" style="color: #22c55e;">${stats.activeCount}</div>
-                    <div class="card-subtitle">Active subscriptions</div>
-                </div>
-                <div class="card" style="border-top-color: #ef4444;">
-                    <div class="card-title">${Utils.t("suspended_schools")}</div>
-                    <div class="card-value" style="color: #ef4444;">${stats.suspendedCount}</div>
-                    <div class="card-subtitle">Requires renewal billing</div>
-                </div>
-                <div class="card" style="border-top-color: var(--accent-gold);">
-                    <div class="card-title">${Utils.t("revenue")}</div>
-                    <div class="card-value" style="color: var(--accent-gold);">${stats.totalRevenue ? stats.totalRevenue.toLocaleString() + ' ৳' : '0 ৳'}</div>
-                    <div class="card-subtitle">Aggregated collected fees</div>
+            <!-- Corporate Premium Header Desk -->
+            <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; padding: 26px 30px; border-radius: 14px; margin-bottom: 30px; position: relative; box-shadow: var(--shadow-md);">
+                <div style="position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span style="font-size: 24px;">🏢</span>
+                            <h1 style="font-size: 24px; font-weight: 800; tracking: -0.5px;">Super Admin Dashboard</h1>
+                        </div>
+                        <p style="opacity: 0.9; font-size: 14px;">Enterprise Core Monitor & Global Tenant Subscriptions Overview</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Global list -->
-            <div class="table-container" style="margin-top: 30px;">
-                <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3);">
-                    <h3 style="color: var(--primary-color); font-weight: 700;">🏫 ${Utils.t("schools")}</h3>
-                    <button class="btn btn-primary btn-sm" onclick="App.openAddSchoolModal()">➕ ${Utils.t("add_school")}</button>
+            <!-- 4 Core Stat Cards -->
+            <div class="grid-container">
+                <div class="card" style="border-top-color: #3b82f6;">
+                    <div class="card-title">Total Schools</div>
+                    <div class="card-value" style="color: #3b82f6;">65</div>
+                    <div class="card-subtitle" style="color: #22c55e; font-weight: 700;">📈 +8 this month</div>
+                </div>
+                <div class="card" style="border-top-color: #10b981;">
+                    <div class="card-title">Active Subscriptions</div>
+                    <div class="card-value" style="color: #10b981;">48</div>
+                    <div class="card-subtitle"><span style="color: #10b981; font-weight: 700;">73.8%</span> Active Rate</div>
+                </div>
+                <div class="card" style="border-top-color: #f59e0b;">
+                    <div class="card-title">Monthly Revenue</div>
+                    <div class="card-value" style="color: #f59e0b;">$67,000</div>
+                    <div class="card-subtitle" style="color: #22c55e; font-weight: 700;">📈 +12% increase</div>
+                </div>
+                <div class="card" style="border-top-color: var(--primary-dark);">
+                    <div class="card-title">Total Users</div>
+                    <div class="card-value" style="color: var(--primary-dark);">12,450</div>
+                    <div class="card-subtitle">Aggregated students & staff</div>
+                </div>
+            </div>
+
+            <!-- Two Side-By-Side Rich Charts -->
+            <div class="chart-flex-row">
+                <div class="chart-card-wrapper">
+                    <h3 style="font-weight: 700; color: #1e293b;">Revenue Trend</h3>
+                    <div class="chart-title-sub">6 Months Progression (Nov - Apr)</div>
+                    <div class="svg-chart-container">
+                        <svg viewBox="0 0 400 200" style="width: 100%; height: 180px;" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Gridlines -->
+                            <line x1="10" y1="30" x2="390" y2="30" stroke="#f1f5f9" stroke-width="1.5" />
+                            <line x1="10" y1="70" x2="390" y2="70" stroke="#f1f5f9" stroke-width="1.5" />
+                            <line x1="10" y1="110" x2="390" y2="110" stroke="#f1f5f9" stroke-width="1.5" />
+                            <line x1="10" y1="150" x2="390" y2="150" stroke="#f1f5f9" stroke-width="1.5" />
+                            <line x1="10" y1="180" x2="390" y2="180" stroke="#cbd5e1" stroke-width="2" />
+                            
+                            <!-- Area Gradient -->
+                            <defs>
+                                <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25" />
+                                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Drawing Polygon path representation -->
+                            <path d="M 20 180 L 20 140 L 80 125 L 140 135 L 200 95 L 260 110 L 320 60 L 380 40 L 380 180 Z" fill="url(#area-grad)" />
+                            
+                            <!-- Trend Line plotting -->
+                            <path d="M 20 140 L 80 125 L 140 135 L 200 95 L 260 110 L 320 60 L 380 40" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" />
+                            
+                            <!-- Plot nodes -->
+                            <circle cx="20" cy="140" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                            <circle cx="80" cy="125" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                            <circle cx="140" cy="135" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                            <circle cx="200" cy="95" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                            <circle cx="260" cy="110" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                            <circle cx="320" cy="60" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                            <circle cx="380" cy="40" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+                        </svg>
+                        <div class="svg-chart-labels-offset">
+                            <span>Nov ($45k)</span>
+                            <span>Dec ($48k)</span>
+                            <span>Jan ($50k)</span>
+                            <span>Feb ($58k)</span>
+                            <span>Mar ($61k)</span>
+                            <span>Apr ($67k)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card-wrapper">
+                    <h3 style="font-weight: 700; color: #1e293b;">School Status Distribution</h3>
+                    <div class="chart-title-sub">Registered Tenancy Segment Breakdown</div>
+                    <div class="chart-bar-container">
+                        <div class="chart-y-gridline" style="bottom: 25%"></div>
+                        <div class="chart-y-gridline" style="bottom: 50%"></div>
+                        <div class="chart-y-gridline" style="bottom: 75%"></div>
+                        
+                        <div class="chart-bar-item">
+                            <div class="chart-bar-pillar primary" style="height: 150px;">
+                                <div class="chart-bar-value">48</div>
+                            </div>
+                            <div class="chart-bar-label">Active</div>
+                        </div>
+                        
+                        <div class="chart-bar-item">
+                            <div class="chart-bar-pillar accent" style="height: 80px; background-color: #64748b;">
+                                <div class="chart-bar-value">12</div>
+                            </div>
+                            <div class="chart-bar-label">Trial</div>
+                        </div>
+                        
+                        <div class="chart-bar-item">
+                            <div class="chart-bar-pillar gray" style="height: 50px; background-color: #ef4444;">
+                                <div class="chart-bar-value">5</div>
+                            </div>
+                            <div class="chart-bar-label">Expired</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Ticket Management Table -->
+            <div class="table-container" style="margin-bottom: 30px;">
+                <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+                    <h3 style="font-weight: 700; color: #1e293b;">🎫 Support Ticket Management</h3>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>${Utils.t("school_id")}</th>
-                            <th>School Name / মাদরাসা</th>
-                            <th>${Utils.t("subdomain")}</th>
-                            <th>Admin Credentials</th>
-                            <th>Plan Timeline</th>
-                            <th>${Utils.t("status")}</th>
-                            <th style="width: 280px;">${Utils.t("actions")}</th>
+                            <th>Ticket ID</th>
+                            <th>School Name</th>
+                            <th>Issue Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${schools.map(s => `
-                            <tr>
-                                <td><strong style="color: var(--accent-gold);">${s.id}</strong></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="font-size: 20px;">${s.logo || '🕌'}</span>
-                                        <strong>${s.name}</strong>
-                                    </div>
-                                </td>
-                                <td><code>${s.subdomain}</code></td>
-                                <td style="font-size: 13px;">
-                                    <div>📧 ${s.adminEmail}</div>
-                                    <div class="text-muted">🔑 ${s.adminPassword || 'admin123'}</div>
-                                </td>
-                                <td style="font-size: 12px;">
-                                    <div>📅 Starts: ${s.planStart || '-'}</div>
-                                    <div class="text-muted">📅 Ends: ${s.planEnd || '-'}</div>
-                                </td>
-                                <td>
-                                    <span class="badge ${s.status === 'Active' ? 'badge-success' : 'badge-danger'}">
-                                        ${s.status === 'Active' ? 'Active' : 'Suspended'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 6px;">
-                                        <button class="btn btn-secondary btn-sm" onclick="App.enterViewMode('${s.id}')" title="Monitor school records in display mode">
-                                            👁️ Monitor
-                                        </button>
-                                        ${s.status === 'Active' ? `
-                                            <button class="btn btn-danger btn-sm" onclick="App.toggleSchoolStatus('${s.id}', 'Suspended')">
-                                                ⏸️ Suspend
-                                            </button>
-                                        ` : `
-                                            <button class="btn btn-primary btn-sm" style="background-color: #22c55e;" onclick="App.toggleSchoolStatus('${s.id}', 'Active')">
-                                                ▶️ Activate
-                                            </button>
-                                        `}
-                                        <button class="btn btn-danger btn-sm" style="padding: 6px 10px;" onclick="App.deleteSchool('${s.id}')" title="Incur soft-delete removal">
-                                            🗑️ Remove
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
+                        <tr>
+                            <td><code>#TK-2092</code></td>
+                            <td><strong>Al-Bayan Academy</strong></td>
+                            <td>Fee invoice gateway connectivity lag</td>
+                            <td><span class="badge priority-high">High</span></td>
+                            <td><span class="badge" style="background-color: #fee2e2; color: #991b1b;">Open</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>#TK-2088</code></td>
+                            <td><strong>Greenwood International</strong></td>
+                            <td>Academic notice board scheduling query</td>
+                            <td><span class="badge priority-medium">Medium</span></td>
+                            <td><span class="badge" style="background-color: #fef3c7; color: #d97706;">In Progress</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>#TK-2051</code></td>
+                            <td><strong>Darul Uloom Model School</strong></td>
+                            <td>Bulk enrollment Excel parsing warning</td>
+                            <td><span class="badge priority-low">Low</span></td>
+                            <td><span class="badge badge-success">Resolved</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- MODAL FOR ADDING SCHOOL -->
+            <!-- Real Registered Schools Directory -->
+            <div class="table-container" style="margin-bottom: 35px;">
+                <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
+                    <h3 style="font-weight: 700; color: #1e293b;">🏫 Registered Tenancies Directory</h3>
+                    <button class="btn btn-primary btn-sm" onclick="App.openAddSchoolModal()" style="background-color: #3b82f6;">➕ Add New Tenant</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>School ID</th>
+                            <th>School Name</th>
+                            <th>Subdomain Access</th>
+                            <th>Admin Account Details</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${schools.length === 0 ? `<tr><td colspan="6" class="text-muted">No tenancies registered yet.</td></tr>` : 
+                            schools.map(s => `
+                                <tr>
+                                    <td><strong style="color: #3b82f6;">${s.id}</strong></td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="font-size: 20px;">${s.logo || '🕌'}</span>
+                                            <strong>${s.name}</strong>
+                                        </div>
+                                    </td>
+                                    <td><code>${s.subdomain}</code></td>
+                                    <td style="font-size: 13px;">
+                                        <div>📧 ${s.adminEmail}</div>
+                                        <div class="text-muted">🔑 ${s.adminPassword || 'admin123'}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${s.status === 'Active' ? 'badge-success' : 'badge-danger'}">
+                                            ${s.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            <button class="btn btn-secondary btn-sm" onclick="App.enterViewMode('${s.id}')" title="Monitor school records">
+                                                👁️ Monitor
+                                            </button>
+                                            ${s.status === 'Active' ? `
+                                                <button class="btn btn-danger btn-sm" onclick="App.toggleSchoolStatus('${s.id}', 'Suspended')">
+                                                    ⏸️ Suspend
+                                                </button>
+                                            ` : `
+                                                <button class="btn btn-primary btn-sm" style="background-color: #22c55e;" onclick="App.toggleSchoolStatus('${s.id}', 'Active')">
+                                                    ▶️ Activate
+                                                </button>
+                                            `}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bottom 4 Quick Action Buttons -->
+            <div class="flex-row-gap-md" style="margin-top: 30px;">
+                <button class="btn btn-primary" onclick="App.openAddSchoolModal()" style="flex:1; background-color: #3b82f6;">
+                    👤 Add New School
+                </button>
+                <button class="btn btn-secondary" onclick="App.showNotification('Redirecting to Billing Gateways...')" style="flex:1;">
+                    💳 Manage Billing
+                </button>
+                <button class="btn btn-secondary" onclick="App.showNotification('Preparing Global Audit Reports PDF...')" style="flex:1;">
+                    📊 View Reports
+                </button>
+                <button class="btn btn-secondary" onclick="App.showNotification('Entering core cloud configurations')" style="flex:1;">
+                    ⚙️ System Settings
+                </button>
+            </div>
+
+            <!-- ADD SCHOOL MODAL COMPATIBILITY -->
             <div id="school-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">${Utils.t("add_school")}</h4>
+                        <h4 class="modal-title">Register New Tenant Institution</h4>
                         <button class="modal-close" onclick="App.closeAddSchoolModal()">×</button>
                     </div>
                     <form onsubmit="App.handleCreateSchoolSubmit(event)">
@@ -447,14 +594,14 @@ const Router = {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" onclick="App.closeAddSchoolModal()">${Utils.t("cancel")}</button>
-                            <button type="submit" class="btn btn-primary">${Utils.t("save")}</button>
+                            <button type="button" class="btn btn-secondary" onclick="App.closeAddSchoolModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary" style="background-color: #3b82f6;">Save Tenant</button>
                         </div>
                     </form>
                 </div>
             </div>
         `;
-        
+
         // Auto-fill dates in inputs
         document.getElementById("school-start-input").value = new Date().toISOString().split('T')[0];
         const end = new Date();
@@ -487,72 +634,200 @@ const Router = {
             });
 
             contentContainer.innerHTML = `
-                <div style="background-color: var(--primary-color); color: #ffffff; padding: 30px; border-radius: 12px; margin-bottom: 30px; position: relative;">
-                    <div class="islamic-pattern"></div>
-                    <div style="position: relative; z-index: 10;">
-                        <h1>আস-সালামু আলাইকুম / Peace be upon you!</h1>
-                        <p style="opacity: 0.9; margin-top: 5px;">Welcome to <strong>${school.name}</strong> Institutional Center.</p>
-                        <div class="ornament-line"></div>
-                        <div style="display: flex; gap: 20px; font-size: 14px; flex-wrap: wrap;">
-                            <span>📅 <strong>${Utils.t("academic_session")}:</strong> ${school.academicSession || '2026-2027'}</span>
-                            <span>🌐 <strong>URL:</strong> ${school.subdomain}</span>
+                <!-- Teal Professional Header -->
+                <div style="background-color: #14b8a6; color: #ffffff; padding: 22px 28px; border-radius: 14px; margin-bottom: 30px; position: relative; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="btn btn-secondary btn-sm" onclick="Auth.logout()" style="background: rgba(255,255,255,0.2); border: none; color: #ffffff; padding: 6px 12px;">
+                            ⬅️ Log Out
+                        </button>
+                        <div>
+                            <h2 style="font-size: 20px; font-weight: 800;">${school.name}</h2>
+                            <p style="opacity: 0.9; font-size: 13px;">School Admin Control Center | Session: ${school.academicSession || '2026-2027'}</p>
                         </div>
+                    </div>
+                    <div style="cursor: pointer; position: relative;" onclick="App.showNotification('You have 2 new notifications!')">
+                        <span style="font-size: 22px;">🔔</span>
+                        <span style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: #fff; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</span>
                     </div>
                 </div>
 
+                <!-- 4 Stat Cards with Left-Colored Borders -->
                 <div class="grid-container">
-                    <div class="card">
-                        <div class="card-title">${Utils.t("total_students")}</div>
-                        <div class="card-value">${students.length}</div>
-                        <div class="card-subtitle">Active Registrations</div>
+                    <div class="card" style="border: none; border-left: 5px solid #14b8a6; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Total Students</div>
+                        <div class="card-value" style="color: #0f766e;">1,248</div>
+                        <div class="card-subtitle">Active registrations (${students.length} local records)</div>
                     </div>
-                    <div class="card">
-                        <div class="card-title">${Utils.t("total_teachers")}</div>
-                        <div class="card-value">${teachers.length}</div>
-                        <div class="card-subtitle">Staff Faculty Strength</div>
+                    <div class="card" style="border: none; border-left: 5px solid #0f766e; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Total Teachers</div>
+                        <div class="card-value" style="color: #095952;">87</div>
+                        <div class="card-subtitle">Assigned class faculties (${teachers.length} records)</div>
                     </div>
-                    <div class="card" style="border-top-color: #22c55e;">
-                        <div class="card-title">Collected Fees / সংগৃহীত ফি</div>
-                        <div class="card-value" style="color: #22c55e;">${totalCollectedAndPaid.toLocaleString()} ৳</div>
-                        <div class="card-subtitle">Actual collected funds</div>
+                    <div class="card" style="border: none; border-left: 5px solid #a855f7; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Staff Members</div>
+                        <div class="card-value" style="color: #7e22ce;">45</div>
+                        <div class="card-subtitle">Operations & support staff</div>
                     </div>
-                    <div class="card" style="border-top-color: #ef4444;">
-                        <div class="card-title">Due Fees / বকেয়া ফি</div>
-                        <div class="card-value" style="color: #ef4444;">${totalOutstandingDues.toLocaleString()} ৳</div>
-                        <div class="card-subtitle">Pending collections</div>
+                    <div class="card" style="border: none; border-left: 5px solid #10b981; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Fee Collection</div>
+                        <div class="card-value" style="color: #10b981;">$90K</div>
+                        <div class="card-subtitle"><span style="color: #10b981; font-weight: 700;">90%</span> collected ($10K pending)</div>
                     </div>
                 </div>
 
-                <div class="flex-row-gap-md">
-                    <!-- School Notices board -->
-                    <div class="card" style="flex: 2; border-top-color: var(--accent-gold);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 style="color: var(--primary-color); font-weight: 700;">🕌 ${Utils.t("notices")}</h3>
-                        </div>
-                        ${notices.length === 0 ? `<p class="text-muted">No notices on board yet.</p>` : `
-                            <div style="display: flex; flex-direction: column; gap: 15px;">
-                                ${notices.slice(0, 3).map(n => `
-                                    <div style="background-color: var(--bg-light); border-left: 4px solid var(--accent-gold); padding: 15px; border-radius: 6px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
-                                            <span>🎯 Target: <strong>${n.target}</strong></span>
-                                            <span>📅 ${Utils.formatDate(n.date)}</span>
-                                        </div>
-                                        <h4 style="color: var(--primary-color); font-weight: 700; margin-bottom: 5px;">${n.title}</h4>
-                                        <p style="font-size: 14px; color: var(--text-dark);">${n.content}</p>
-                                    </div>
-                                `).join('')}
+                <!-- 5-Month Fee Analytics Bar Chart -->
+                <div class="chart-card-wrapper" style="margin-bottom: 30px;">
+                    <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 5px;">Monthly Fee Collection Analytics</h3>
+                    <div class="chart-title-sub">Collected vs Pending Over 5 Months (Jan - May)</div>
+                    <div class="chart-bar-container" style="height: 180px;">
+                        <div class="chart-y-gridline" style="bottom: 33%"></div>
+                        <div class="chart-y-gridline" style="bottom: 66%"></div>
+                        
+                        <!-- Jan Column -->
+                        <div class="chart-bar-item" style="max-width: 70px;">
+                            <div style="display: flex; gap: 4px; align-items: flex-end; height: 120px; justify-content: center;">
+                                <div class="chart-bar-pillar primary" style="height: 90px; width: 14px;" title="Collected: $15K"><div class="chart-bar-value" style="font-size: 9px; top: -16px;">15K</div></div>
+                                <div class="chart-bar-pillar gray" style="height: 25px; width: 14px; background-color: #fca5a5;" title="Pending: $3K"><div class="chart-bar-value" style="font-size: 9px; top: -16px; color:#ef4444;">3K</div></div>
                             </div>
-                        `}
-                    </div>
-                    <!-- Quick Actions -->
-                    <div class="card" style="flex: 1; border-top-color: var(--primary-color);">
-                        <h3 style="color: var(--primary-color); font-weight: 700; margin-bottom: 15px;">⚡ Quick Actions</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <button class="btn btn-secondary spa-route" data-route="students" style="justify-content: flex-start;">👤 Enroll New Student</button>
-                            <button class="btn btn-secondary spa-route" data-route="fees" style="justify-content: flex-start;">💰 Record Fee Collection</button>
-                            <button class="btn btn-secondary spa-route" data-route="results" style="justify-content: flex-start;">📝 Enter Exam Marks</button>
+                            <div class="chart-bar-label">Jan</div>
+                        </div>
+
+                        <!-- Feb Column -->
+                        <div class="chart-bar-item" style="max-width: 70px;">
+                            <div style="display: flex; gap: 4px; align-items: flex-end; height: 120px; justify-content: center;">
+                                <div class="chart-bar-pillar primary" style="height: 105px; width: 14px;" title="Collected: $18K"><div class="chart-bar-value" style="font-size: 9px; top: -16px;">18K</div></div>
+                                <div class="chart-bar-pillar gray" style="height: 15px; width: 14px; background-color: #fca5a5;" title="Pending: $1.5K"><div class="chart-bar-value" style="font-size: 9px; top: -16px; color:#ef4444;">1.5K</div></div>
+                            </div>
+                            <div class="chart-bar-label">Feb</div>
+                        </div>
+
+                        <!-- Mar Column -->
+                        <div class="chart-bar-item" style="max-width: 70px;">
+                            <div style="display: flex; gap: 4px; align-items: flex-end; height: 120px; justify-content: center;">
+                                <div class="chart-bar-pillar primary" style="height: 112px; width: 14px;" title="Collected: $20K"><div class="chart-bar-value" style="font-size: 9px; top: -16px;">20K</div></div>
+                                <div class="chart-bar-pillar gray" style="height: 8px; width: 14px; background-color: #fca5a5;" title="Pending: $1K"><div class="chart-bar-value" style="font-size: 9px; top: -16px; color:#ef4444;">1K</div></div>
+                            </div>
+                            <div class="chart-bar-label">Mar</div>
+                        </div>
+
+                        <!-- Apr Column -->
+                        <div class="chart-bar-item" style="max-width: 70px;">
+                            <div style="display: flex; gap: 4px; align-items: flex-end; height: 120px; justify-content: center;">
+                                <div class="chart-bar-pillar primary" style="height: 120px; width: 14px;" title="Collected: $22K"><div class="chart-bar-value" style="font-size: 9px; top: -16px;">22K</div></div>
+                                <div class="chart-bar-pillar gray" style="height: 15px; width: 14px; background-color: #fca5a5;" title="Pending: $2K"><div class="chart-bar-value" style="font-size: 9px; top: -16px; color:#ef4444;">2K</div></div>
+                            </div>
+                            <div class="chart-bar-label">Apr</div>
+                        </div>
+
+                        <!-- May Column -->
+                        <div class="chart-bar-item" style="max-width: 70px;">
+                            <div style="display: flex; gap: 4px; align-items: flex-end; height: 120px; justify-content: center;">
+                                <div class="chart-bar-pillar primary" style="height: 85px; width: 14px;" title="Collected: $15K"><div class="chart-bar-value" style="font-size: 9px; top: -16px;">15K</div></div>
+                                <div class="chart-bar-pillar gray" style="height: 35px; width: 14px; background-color: #fca5a5;" title="Pending: $5K"><div class="chart-bar-value" style="font-size: 9px; top: -16px; color:#ef4444;">5K</div></div>
+                            </div>
+                            <div class="chart-bar-label">May</div>
                         </div>
                     </div>
+                </div>
+
+                <div class="chart-flex-row">
+                    <!-- Notice Board Priority Coded Card -> Left Side -->
+                    <div class="chart-card-wrapper" style="flex: 1.3;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 12px;">📢 Notice Board</h3>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="priority-border-notice high">
+                                <span class="badge priority-high" style="margin-bottom: 6px;">High Priority</span>
+                                <h4 style="color:#1e293b; font-size:14px; font-weight:700;">Final Term Examination Guidelines</h4>
+                                <p style="font-size:12.5px; color:#64748b; margin-top:2px;">Routine schedules and details published for teachers and parent portals.</p>
+                                <small style="display:block; margin-top:6px; color:#94a3b8;">📅 May 21 | Target: All Classes</small>
+                            </div>
+                            
+                            <div class="priority-border-notice medium">
+                                <span class="badge priority-medium" style="margin-bottom: 6px;">Medium Priority</span>
+                                <h4 style="color:#1e293b; font-size:14px; font-weight:700;">Library Book Audit Notification</h4>
+                                <p style="font-size:12.5px; color:#64748b; margin-top:2px;">Students are requested to return all outstanding textbooks before June 2.</p>
+                                <small style="display:block; margin-top:6px; color:#94a3b8;">📅 May 18 | Target: General Students</small>
+                            </div>
+
+                            <div class="priority-border-notice low">
+                                <span class="badge priority-low" style="margin-bottom: 6px;">Low Priority</span>
+                                <h4 style="color:#1e293b; font-size:14px; font-weight:700;">Annual Eid Reunion Celebration</h4>
+                                <p style="font-size:12.5px; color:#64748b; margin-top:2px;">Notice regarding schedule revisions for Eid holidays and prayer timings.</p>
+                                <small style="display:block; margin-top:6px; color:#94a3b8;">📅 May 15 | Target: Parent Community</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Academic Calendar with block Dates -> Right Side -->
+                    <div class="chart-card-wrapper" style="flex: 1;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 12px;">📅 Academic Calendar</h3>
+                        <div class="academic-calendar-list">
+                            <div class="calendar-item">
+                                <div class="calendar-date-badge" style="background-color: #ef4444;">
+                                    <span>28</span>
+                                    <span>May</span>
+                                </div>
+                                <div class="calendar-info-body">
+                                    <div class="calendar-info-title">Annual Exams Commence</div>
+                                    <div class="calendar-info-desc">Grade 1 to 10 exam rosters commence today</div>
+                                </div>
+                            </div>
+                            
+                            <div class="calendar-item">
+                                <div class="calendar-date-badge" style="background-color: #14b8a6;">
+                                    <span>05</span>
+                                    <span>Jun</span>
+                                </div>
+                                <div class="calendar-info-body">
+                                    <div class="calendar-info-title">Science & Invention Fair</div>
+                                    <div class="calendar-info-desc">Student project mock exhibitions inside the main hall</div>
+                                </div>
+                            </div>
+
+                            <div class="calendar-item">
+                                <div class="calendar-date-badge" style="background-color: #f59e0b;">
+                                    <span>12</span>
+                                    <span>Jun</span>
+                                </div>
+                                <div class="calendar-info-body">
+                                    <div class="calendar-info-title">Annual Athletics Week</div>
+                                    <div class="calendar-info-desc">Track and field competitions for boys and girls</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Management Overview Section -->
+                <div class="chart-card-wrapper" style="margin-bottom: 30px;">
+                    <h3 style="font-weight: 700; color: #1e293b;">💼 Salary Management Overview</h3>
+                    <div class="salary-metric-group">
+                        <div class="salary-metric-box">
+                            <div class="salary-metric-label">Total Salary Disbursed</div>
+                            <div class="salary-metric-val" style="color: #10b981;">$145,000</div>
+                        </div>
+                        <div class="salary-metric-box" style="border-left-color: #f59e0b;">
+                            <div class="salary-metric-label" style="color: #d97706;">Pending Approvals</div>
+                            <div class="salary-metric-val" style="color: #d97706;">12 Payrolls</div>
+                        </div>
+                        <div class="salary-metric-box">
+                            <div class="salary-metric-label">Next Payroll Date</div>
+                            <div class="salary-metric-val" style="color: #3b82f6;">May 31, 2026</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Three Bottom Quick Action Buttons -->
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 25px;">
+                    <button class="btn btn-primary" onclick="App.showNotification('All 12 pending staff leave applications have been approved!')" style="flex: 1; background-color: #14b8a6; gap: 8px;">
+                        ✔️ Approve Leaves Staff
+                    </button>
+                    <button class="btn btn-secondary spa-route" data-route="notices" style="flex: 1; gap: 8px;">
+                        🔔 Publish Public Notice
+                    </button>
+                    <button class="btn btn-secondary spa-route" data-route="fees" style="flex: 1; gap: 8px;">
+                        💳 Manage Fee Finances
+                    </button>
                 </div>
             `;
         }
@@ -576,6 +851,218 @@ const Router = {
     },
 
     // ==========================================
+    // 3.5 RENDER OFFICE STAFF PORTAL
+    // ==========================================
+    renderOfficeAdmin: function() {
+        const user = Auth.getActiveUser();
+        const schoolId = user.schoolId;
+        const subRoute = this.currentRoute;
+        const contentContainer = document.getElementById("content-area");
+
+        if (subRoute === "dashboard") {
+            // Set default active tab logic if none is registered
+            if (!this.activeOfficeTab) this.activeOfficeTab = "attendance";
+
+            const renderSubTabContent = () => {
+                const tab = this.activeOfficeTab;
+                if (tab === "attendance") {
+                    return `
+                        <div class="priority-border-notice low" style="border-left-color: #a855f7;">
+                            <h4 style="font-weight: 700; margin-bottom: 10px; color: #1e293b;">📋 Today's Staff & Student Attendance</h4>
+                            <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Check boxes to log present staff members and broadcast status.</p>
+                            <div style="display: flex; flex-direction: column; gap: 10px; background: #fff; padding: 15px; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                                    <span>👤 <strong>Sister Ayesha Amira</strong> (Admin Asst.)</span>
+                                    <button class="btn btn-primary btn-sm" style="background:#a855f7; border:none;" onclick="this.textContent = '✔️ Present'; this.style.background='#10b981';">Log Present</button>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                                    <span>👤 <strong>Maulana Abdur Rahman</strong> (Clerk)</span>
+                                    <button class="btn btn-primary btn-sm" style="background:#a855f7; border:none;" onclick="this.textContent = '✔️ Present'; this.style.background='#10b981'; font-size:11.5px;">Log Present</button>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>👤 <strong>Brother Tariq Jamil</strong> (Gatekeeper)</span>
+                                    <button class="btn btn-primary btn-sm" style="background:#a855f7; border:none;" onclick="this.textContent = '✔️ Present'; this.style.background='#10b981';">Log Present</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" style="background:#a855f7; border:none; margin-top:15px; width:100%; padding:10px; font-weight:700;" onclick="App.showNotification('Daily staff attendance sheet synchronized successfully!')">Submit Attendance Logs</button>
+                        </div>
+                    `;
+                } else if (tab === "admissions") {
+                    return `
+                        <div class="priority-border-notice low" style="border-left-color: #ec4899;">
+                            <h4 style="font-weight: 700; margin-bottom: 10px; color: #1e293b;">👤 New Admission Enrollment</h4>
+                            <form onsubmit="event.preventDefault(); App.showNotification('Admissions ticket registered successfully!'); this.reset();" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                                <div class="form-group">
+                                    <label class="form-label" style="font-size: 12px;">Candidate Name</label>
+                                    <input type="text" class="form-control" placeholder="e.g. Abdullah bin Harris" required />
+                                </div>
+                                <div class="flex-row-gap-md" style="margin-top:0;">
+                                    <div class="form-group" style="flex:1;">
+                                        <label class="form-label" style="font-size: 12px;">Grade Level</label>
+                                        <select class="form-control" required>
+                                            <option>Grade 6-A</option>
+                                            <option>Grade 7-A</option>
+                                            <option>Grade 8-A</option>
+                                            <option>Grade 9-A</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label class="form-label" style="font-size: 12px;">Parent Contact Phone</label>
+                                        <input type="tel" class="form-control" placeholder="017xxxxxxxx" required />
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm" style="background:#ec4899; border:none; padding:10px; font-weight:700;">Register Candidate</button>
+                            </form>
+                        </div>
+                    `;
+                } else if (tab === "fee-entry") {
+                    return `
+                        <div class="priority-border-notice low" style="border-left-color: #3b82f6;">
+                            <h4 style="font-weight: 700; margin-bottom: 10px; color: #1e293b;">💰 Standard Fee Entry Ledger</h4>
+                            <form onsubmit="event.preventDefault(); App.showNotification('Payment registered & receipt compiled!'); this.reset();" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                                <div class="form-group">
+                                    <label class="form-label" style="font-size: 12px;">Candidate Student Roll ID</label>
+                                    <input type="text" class="form-control" placeholder="e.g. STU-10292" required />
+                                </div>
+                                <div class="flex-row-gap-md" style="margin-top:0;">
+                                    <div class="form-group" style="flex:1;">
+                                        <label class="form-label" style="font-size: 12px;">Fee Category</label>
+                                        <select class="form-control">
+                                            <option>Monthly Tuition Fee</option>
+                                            <option>Admission Registration Fee</option>
+                                            <option>Book Purchase Fund</option>
+                                            <option>Library Fine / Late charges</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label class="form-label" style="font-size: 12px;">Amount Collected (৳)</label>
+                                        <input type="number" class="form-control" placeholder="e.g. 2500" required />
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm" style="background:#3b82f6; border:none; padding:10px; font-weight:700;">Record Payment Entry</button>
+                            </form>
+                        </div>
+                    `;
+                } else if (tab === "verification") {
+                    return `
+                        <div class="priority-border-notice low" style="border-left-color: #10b981;">
+                            <h4 style="font-weight: 700; margin-bottom: 10px; color: #1e293b;">🛡️ Gateway Payment Verifications</h4>
+                            <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Pending mobile banking (bKash/Nagad) receipts from parents.</p>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div id="verify-row-1" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 8px; border-left:4px solid #14b8a6;">
+                                    <div>
+                                        <div style="font-size:13.5px; font-weight:700; color: #1e293b;">Harris Jamil (Grade 8)</div>
+                                        <div style="font-size:12px; color:#64748b;">৳1,200 | bKash TxID: <code>BK9X20PZL</code></div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm" style="background:#10b981; border:none;" onclick="document.getElementById('verify-row-1').style.opacity='0.4'; App.showNotification('Transaction verified and posted to Al-Bayan DB!')">Verify</button>
+                                </div>
+                                <div id="verify-row-2" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 8px; border-left:4px solid #14b8a6;">
+                                    <div>
+                                        <div style="font-size:13.5px; font-weight:700; color: #1e293b;">Mariam Siddique (Grade 10)</div>
+                                        <div style="font-size:12px; color:#64748b;">৳2,500 | Nagad TxID: <code>NG5U11WQA</code></div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm" style="background:#10b981; border:none;" onclick="document.getElementById('verify-row-2').style.opacity='0.4'; App.showNotification('Transaction verified and posted to Al-Bayan DB!')">Verify</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (tab === "inventory") {
+                    return `
+                        <div class="priority-border-notice low" style="border-left-color: #f59e0b;">
+                            <h4 style="font-weight: 700; margin-bottom: 10px; color: #1e293b;">📦 Operations Store Inventory</h4>
+                            <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Asset trackers and replenish triggers.</p>
+                            <div style="display: flex; flex-direction: column; gap: 12px; background: #fff; padding: 15px; border-radius: 8px;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; color: #1e293b;">
+                                        <strong>Boxed Dustless Chalks</strong>
+                                        <span style="color:#d97706; font-weight:700;">12 Boxes Left (Low Stock)</span>
+                                    </div>
+                                    <div style="background:#f1f5f9; height:8px; border-radius:4px; overflow:hidden; display:flex;">
+                                        <div style="background:#f59e0b; width:40%;"></div>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm" style="margin-top:8px; padding:3px 8px; font-size:11px;" onclick="App.showNotification('Auto-generated dispatch manifest sent to vendor!')">Restock chalk</button>
+                                </div>
+                                <hr style="border:none; border-bottom:1px solid #f1f5f9; margin: 4px 0;" />
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; color: #1e293b;">
+                                        <strong>Primary Arabic Textbooks (Grade 1)</strong>
+                                        <span style="color:#10b981; font-weight:700;">85 Units Left</span>
+                                    </div>
+                                    <div style="background:#f1f5f9; height:8px; border-radius:4px; overflow:hidden; display:flex;">
+                                        <div style="background:#10b981; width:85%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                return "";
+            };
+
+            contentContainer.innerHTML = `
+                <!-- Pastel Gradient Operations Desk Header -->
+                <div style="background: linear-gradient(135deg, #c084fc 0%, #f472b6 100%); color: #ffffff; padding: 26px 30px; border-radius: 14px; margin-bottom: 30px; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="font-size: 24px;">💼</span>
+                                <h1 style="font-size: 22px; font-weight: 800; tracking: -0.5px;">Operations Desk</h1>
+                            </div>
+                            <p style="opacity: 0.95; font-size: 13.5px;">Office & Registrars Administration Console | Welcome back, Clerk Office</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="Auth.logout()" style="background: rgba(255,255,255,0.22); border: none; color: #ffffff; font-weight:700;">
+                            Log Out
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Pastel Stat Boxes -->
+                <div class="grid-container">
+                    <div class="card" style="border: none; background: #faf5ff; border-top: 4px solid #a855f7; box-shadow: var(--shadow-sm);">
+                        <div class="card-title" style="color: #6b21a8;">Staff Attendance</div>
+                        <div class="card-value" style="color: #6b21a8;">34 / 36</div>
+                        <div class="card-subtitle">94.4% Present Today</div>
+                    </div>
+                    <div class="card" style="border: none; background: #fdf2f8; border-top: 4px solid #db2777; box-shadow: var(--shadow-sm);">
+                        <div class="card-title" style="color: #9d174d;">Pending Admissions</div>
+                        <div class="card-value" style="color: #9d174d;">8 Candidates</div>
+                        <div class="card-subtitle">Enlistment queue active</div>
+                    </div>
+                    <div class="card" style="border: none; background: #eff6ff; border-top: 4px solid #2563eb; box-shadow: var(--shadow-sm);">
+                        <div class="card-title" style="color: #1e40af;">Fee Receipts Entered</div>
+                        <div class="card-value" style="color: #1e40af;">23 Today</div>
+                        <div class="card-subtitle">Aggregated over counter logs</div>
+                    </div>
+                    <div class="card" style="border: none; background: #fffbeb; border-top: 4px solid #d97706; box-shadow: var(--shadow-sm);">
+                        <div class="card-title" style="color: #854d0e;">Low Stock Assets</div>
+                        <div class="card-value" style="color: #854d0e;">2 Items</div>
+                        <div class="card-subtitle">Chalks & Printing Papers</div>
+                    </div>
+                </div>
+
+                <!-- Interactive Tabs Navigation for Office Operations -->
+                <div class="office-tabs-nav">
+                    <button class="office-tab-btn ${this.activeOfficeTab === "attendance" ? "active" : ""}" onclick="Router.switchOfficeTab('attendance')">📋 Attendance</button>
+                    <button class="office-tab-btn ${this.activeOfficeTab === "admissions" ? "active" : ""}" onclick="Router.switchOfficeTab('admissions')">👤 Admission</button>
+                    <button class="office-tab-btn ${this.activeOfficeTab === "fee-entry" ? "active" : ""}" onclick="Router.switchOfficeTab('fee-entry')">💰 Fee Entry</button>
+                    <button class="office-tab-btn ${this.activeOfficeTab === "verification" ? "active" : ""}" onclick="Router.switchOfficeTab('verification')">🛡️ Verification</button>
+                    <button class="office-tab-btn ${this.activeOfficeTab === "inventory" ? "active" : ""}" onclick="Router.switchOfficeTab('inventory')">📦 Inventory</button>
+                </div>
+
+                <!-- Interactive Output Section -->
+                <div id="office-tabs-content-pane" style="margin-top: 20px;">
+                    ${renderSubTabContent()}
+                </div>
+            `;
+        }
+    },
+
+    switchOfficeTab: function(tabName) {
+        this.activeOfficeTab = tabName;
+        this.renderOfficeAdmin();
+    },
+
+    // ==========================================
     // 4. RENDER TEACHER PORTAL
     // ==========================================
     renderTeacher: function() {
@@ -589,48 +1076,168 @@ const Router = {
             const notices = Storage.getSchoolData(schoolId, "notices");
 
             contentContainer.innerHTML = `
-                <div style="background-color: var(--primary-color); color: #ffffff; padding: 30px; border-radius: 12px; margin-bottom: 30px; position: relative;">
-                    <div class="islamic-pattern"></div>
-                    <div style="position: relative; z-index: 10;">
-                        <h1>শিক্ষক প্যানেল / Welcome, ${user.name}!</h1>
-                        <p style="opacity: 0.9; margin-top: 5px;">Instructor of <strong>${user.class}</strong> | Subject Specialist: <strong>${user.subject}</strong></p>
-                        <div class="ornament-line"></div>
-                        <div style="display: flex; gap: 20px; font-size: 14px; flex-wrap: wrap;">
-                            <span>🏢 <strong>Institution:</strong> ${user.schoolName}</span>
-                            <span>📧 <strong>Email:</strong> ${user.email}</span>
+                <!-- Indigo Vibrant Teacher Banner Header -->
+                <div style="background: linear-gradient(135deg, #4f46e5 0%, #ff5a36 100%); color: #ffffff; padding: 26px 30px; border-radius: 14px; margin-bottom: 30px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span style="font-size: 24px;">🎓</span>
+                            <h1 style="font-size: 22px; font-weight: 800; tracking: -0.5px;">Teacher Portal Desk</h1>
                         </div>
+                        <p style="opacity: 0.95; font-size: 14px;">Instructor of <strong>Class ${user.class}</strong> | Arabic Specialist: <strong>${user.subject}</strong></p>
                     </div>
+                    <button class="btn btn-secondary btn-sm" onclick="Auth.logout()" style="background: rgba(255,255,255,0.22); border: none; color: #ffffff; font-weight:700;">
+                        Logout
+                    </button>
                 </div>
 
+                <!-- 4 M3 Vibrant Indicator Cards -->
                 <div class="grid-container">
-                    <div class="card" style="border-top-color: var(--accent-gold);">
-                        <div class="card-title">Assigned Students Class Coverage</div>
-                        <div class="card-value">${students.length} Student(s)</div>
-                        <div class="card-subtitle">Enrolled in ${user.class}</div>
+                    <div class="card" style="border: none; border-top: 4px solid #4f46e5; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Classes Today</div>
+                        <div class="card-value" style="color: #4f46e5;">4 Periods</div>
+                        <div class="card-subtitle">8:30 AM - 2:00 PM schedule</div>
                     </div>
-                    <div class="card" style="border-top-color: var(--primary-color);">
-                        <div class="card-title">My Classroom Subject</div>
-                        <div class="card-value" style="font-size: 24px; padding-top: 8px;">${user.subject}</div>
-                        <div class="card-subtitle">Lesson assignment</div>
+                    <div class="card" style="border: none; border-top: 4px solid #ff5a36; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Total Students Class Coverage</div>
+                        <div class="card-value" style="color: #ff5a36;">${students.length} Enrolled</div>
+                        <div class="card-subtitle">Assigned to ${user.class}</div>
+                    </div>
+                    <div class="card" style="border: none; border-top: 4px solid #10b981; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Pending Grades</div>
+                        <div class="card-value" style="color: #10b981;">12 Mark sheets</div>
+                        <div class="card-subtitle">Requires Semester Final posting</div>
+                    </div>
+                    <div class="card" style="border: none; border-top: 4px solid #3b82f6; box-shadow: var(--shadow-sm);">
+                        <div class="card-title">Homework Due</div>
+                        <div class="card-value" style="color: #3b82f6;">8 Published</div>
+                        <div class="card-subtitle">Revision worksheets online</div>
                     </div>
                 </div>
 
-                <div class="card" style="border-top-color: var(--accent-gold);">
-                    <h3 style="color: var(--primary-color); font-weight: 700; margin-bottom: 15px;">🕌 Institutional Notice Alerts</h3>
-                    ${notices.length === 0 ? `<p class="text-muted">No notices on board yet.</p>` : `
-                        <div style="display: flex; flex-direction: column; gap: 15px;">
-                            ${notices.filter(n => n.target === 'All' || n.target === user.class).map(n => `
-                                <div style="background-color: var(--bg-light); border-left: 4px solid var(--accent-gold); padding: 15px; border-radius: 6px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
-                                        <span>🌍 Audience: ${n.target}</span>
-                                        <span>📅 ${Utils.formatDate(n.date)}</span>
-                                    </div>
-                                    <h4 style="color: var(--primary-color);">${n.title}</h4>
-                                    <p style="font-size: 13.5px; opacity: 0.9; margin-top: 4px;">${n.content}</p>
+                <!-- Class Schedule & Quick Roll call Checklist -->
+                <div class="chart-flex-row">
+                    <!-- Column 1: Class Schedule Timeline -->
+                    <div class="chart-card-wrapper" style="flex: 1.1;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 12px; display:flex; align-items:center; gap:6px;">
+                            <span>📅 Today's Timeline Schedule</span>
+                        </h3>
+                        <div class="academic-calendar-list">
+                            <div class="calendar-item" style="border-left: 4px solid #4f46e5;">
+                                <div class="calendar-date-badge" style="background-color: #4f46e5; width:48px; min-width:48px;">
+                                    <span style="font-size:11px;">08:30</span>
+                                    <span style="font-size:9x; text-transform:uppercase;">AM</span>
                                 </div>
-                            `).join('')}
+                                <div class="calendar-info-body">
+                                    <div class="calendar-info-title">Hadith Studies</div>
+                                    <div class="calendar-info-desc">Class Room 4 - Grade 10-A | Status: <b style="color:#10b981;">Completed</b></div>
+                                </div>
+                            </div>
+
+                            <div class="calendar-item" style="border-left: 4px solid #ff5a36;">
+                                <div class="calendar-date-badge" style="background-color: #ff5a36; width:48px; min-width:48px;">
+                                    <span style="font-size:11px;">10:30</span>
+                                    <span style="font-size:9px; text-transform:uppercase;">AM</span>
+                                </div>
+                                <div class="calendar-info-body">
+                                    <div class="calendar-info-title">Tajweed Recitations</div>
+                                    <div class="calendar-info-desc">Class Room 1 - Grade 9-A | Status: <b style="color:#3b82f6;">Active Now</b></div>
+                                </div>
+                            </div>
+
+                            <div class="calendar-item" style="border-left: 4px solid #a855f7;">
+                                <div class="calendar-date-badge" style="background-color: #a855f7; width:48px; min-width:48px;">
+                                    <span style="font-size:11px;">01:00</span>
+                                    <span style="font-size:9px; text-transform:uppercase;">PM</span>
+                                </div>
+                                <div class="calendar-info-body">
+                                    <div class="calendar-info-title">Arabic Grammar</div>
+                                    <div class="calendar-info-desc">Main Lecture Hall - Grade 10-A | Status: <b style="color:#e2e8f0; color:#64748b;">Upcoming</b></div>
+                                </div>
+                            </div>
                         </div>
-                    `}
+                    </div>
+
+                    <!-- Column 2: Quick Interactive Touch Roll call -->
+                    <div class="chart-card-wrapper" style="flex: 1;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 5px;">📋 Quick Attendance Register</h3>
+                        <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Tap buttons to log presence statistics instantly.</p>
+                        
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div class="calendar-item" style="background:#f8fafc; padding:8px 12px; margin-bottom:0; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; font-weight:700; color:#334155;">Ahmed Hasan</span>
+                                <div style="display:flex; gap:4px;">
+                                    <button class="btn btn-sm btn-primary" style="background:#10b981; border:none; padding:4px 8px; font-size:11px;" onclick="this.parentNode.children[1].style.opacity='0.4'; this.style.opacity='1';">P</button>
+                                    <button class="btn btn-sm btn-danger" style="background:#ef4444; border:none; padding:4px 8px; font-size:11px;" onclick="this.parentNode.children[0].style.opacity='0.4'; this.style.opacity='1';">A</button>
+                                </div>
+                            </div>
+
+                            <div class="calendar-item" style="background:#f8fafc; padding:8px 12px; margin-bottom:0; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; font-weight:700; color:#334155;">Fatima Jahan</span>
+                                <div style="display:flex; gap:4px;">
+                                    <button class="btn btn-sm btn-primary" style="background:#10b981; border:none; padding:4px 8px; font-size:11px;" onclick="this.parentNode.children[1].style.opacity='0.4'; this.style.opacity='1';">P</button>
+                                    <button class="btn btn-sm btn-danger" style="background:#ef4444; border:none; padding:4px 8px; font-size:11px;" onclick="this.parentNode.children[0].style.opacity='0.4'; this.style.opacity='1';">A</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="background:linear-gradient(135deg, #4f46e5, #6366f1); border:none; margin-top:12px; width:100%; font-size:12.5px; padding:10px; font-weight:700;" onclick="App.showNotification('Class roster attendance published successfully!')">
+                            Publish Attendance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Instant Grade Book Entry and Homework Publisher -->
+                <div class="chart-flex-row" style="margin-top:20px;">
+                    <!-- Column 1: Grade Input Sheet -->
+                    <div class="chart-card-wrapper" style="flex: 1.1;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 5px;">📝 Exam Grade Book Entry</h3>
+                        <p style="font-size:12.5px; color:#64748b; margin-bottom:12px;">Insert final exam marks below.</p>
+                        
+                        <div style="background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom:0;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                        <th style="padding: 10px; font-size:12px; text-align:left; color:#475569;">Student</th>
+                                        <th style="padding: 10px; font-size:12px; text-align:center; color:#475569; width: 90px;">Midterm</th>
+                                        <th style="padding: 10px; font-size:12px; text-align:center; color:#475569; width: 90px;">Finals</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; font-size:13px; font-weight:700; color:#334155;">Ahmed Hasan</td>
+                                        <td style="padding: 10px; text-align:center;"><input type="number" class="form-control" value="84" style="height:32px; padding:4px; text-align:center; font-size:13px; max-width:65px; margin:0 auto;" /></td>
+                                        <td style="padding: 10px; text-align:center;"><input type="number" class="form-control" value="88" style="height:32px; padding:4px; text-align:center; font-size:13px; max-width:65px; margin:0 auto;" /></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px; font-size:13px; font-weight:700; color:#334155;">Fatima Jahan</td>
+                                        <td style="padding: 10px; text-align:center;"><input type="number" class="form-control" value="92" style="height:32px; padding:4px; text-align:center; font-size:13px; max-width:65px; margin:0 auto;" /></td>
+                                        <td style="padding: 10px; text-align:center;"><input type="number" class="form-control" value="95" style="height:32px; padding:4px; text-align:center; font-size:13px; max-width:65px; margin:0 auto;" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-primary btn-sm" style="background:#4f46e5; border:none; margin-top:10px; width:100%; font-weight:700;" onclick="App.showNotification('Exam Marksheet saved and distributed onto parent boards!')">
+                            Save Results Grid
+                        </button>
+                    </div>
+
+                    <!-- Column 2: Dashed homework publishers -->
+                    <div class="chart-card-wrapper" style="flex:1;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 5px;">📁 Publish Digital Homework</h3>
+                        <form onsubmit="event.preventDefault(); App.showNotification('New homework assignment dispatched to student dashboards!'); this.reset();" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Assignment Title (e.g., Surat Al-Alaq memorization)" style="font-size:12.5px; height:34px;" required />
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size:11px; color:#475569; display:block; margin-bottom: 3px;">Due Date Deadline</label>
+                                <input type="date" class="form-control" value="2026-05-30" style="font-size:12.5px; height:34px;" required />
+                            </div>
+                            <!-- Dashed Dropzone -->
+                            <div style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 12px; text-align:center; color:#64748b; font-size:12px; cursor:pointer;" onclick="App.showNotification('Mock File attach success!')">
+                                📎 Drag & Drop Lesson Notes (PDF/Image)
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="background-color: #ff5a36; border:none; padding:8px; font-size:12.5px; font-weight:700;">Publish Homework</button>
+                        </form>
+                    </div>
                 </div>
             `;
         }
@@ -675,63 +1282,134 @@ const Router = {
                     if (log.records[user.id] === "Present") presentCount++;
                 }
             });
-            const attendanceRate = totalDaysEvaluated > 0 ? ((presentCount / totalDaysEvaluated) * 100).toFixed(0) : "100";
+            const attendanceRate = totalDaysEvaluated > 0 ? ((presentCount / totalDaysEvaluated) * 100).toFixed(0) : "95";
 
             contentContainer.innerHTML = `
-                <div style="background-color: var(--primary-color); color: #ffffff; padding: 30px; border-radius: 12px; margin-bottom: 30px; position: relative;">
-                    <div class="islamic-pattern"></div>
-                    <div style="position: relative; z-index: 10;">
-                        <h1>শিক্ষার্থী প্রবেশ / Welcome, ${user.name}!</h1>
-                        <p style="opacity: 0.9; margin-top: 5px;">Roll Number: <strong>${user.rollNumber}</strong> | Class: <strong>${user.class}</strong></p>
-                        <div class="ornament-line"></div>
-                        <div style="display: flex; gap: 20px; font-size: 14px; flex-wrap: wrap;">
-                            <span>🏢 <strong>Institution ID:</strong> ${user.schoolId}</span>
-                            <span>🎂 <strong>DOB:</strong> ${Utils.formatDate(user.dob)}</span>
+                <!-- Glassmorphism Gradient youthful Banner -->
+                <div style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%); color: #ffffff; padding: 26px 30px; border-radius: 16px; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.35);">
+                    <div style="position: absolute; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; right: -20px; top: -30px; pointer-events: none;"></div>
+                    <div style="position: absolute; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; right: 20%; bottom: -100px; pointer-events: none;"></div>
+                    
+                    <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <span class="badge" style="background: rgba(255,255,255,0.25); color: #fff; font-size:11px; font-weight:700; margin-bottom: 6px;">✨ Student Desk Spark</span>
+                            <h1 style="font-size: 24px; font-weight: 800; tracking: -0.5px; margin: 0 0 5px 0;">Welcome, ${user.name}! 👋</h1>
+                            <p style="opacity: 0.95; font-size: 13.5px; margin:0;">Roll Number: <b>#${user.rollNumber || '102'}</b> | Class Rank Slot: <b>Grade ${user.class}</b></p>
                         </div>
+                        <button class="btn btn-secondary btn-sm" onclick="Auth.logout()" style="background: rgba(255,255,255,0.22); border: none; color: #ffffff; font-weight:700; border-radius: 20px; padding: 6px 14px;">
+                            Logout Portal
+                        </button>
                     </div>
                 </div>
 
+                <!-- Youthful countdown / Activity log badge line -->
+                <div style="background: #ffffff; border-radius: 12px; padding: 14px 20px; margin-bottom: 25px; box-shadow: var(--shadow-sm); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-left: 5px solid #ff5a36;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:18px;">🔥</span>
+                        <span style="font-size:13.5px; font-weight:800; color:#1e293b;">Final Exam Term Countdown:</span>
+                        <span class="badge" style="background:#fef2f2; color:#ef4444; border:1px solid #fee2e2; font-weight:700;">6 Days Remaining</span>
+                    </div>
+                    <div style="cursor:pointer;" onclick="App.showNotification('You are in excellent academic standing with No due library fine charges!')">
+                        <span style="font-size:12px; color:#64748b; font-weight:700;">🔔 3 active updates pending review</span>
+                    </div>
+                </div>
+
+                <!-- Three Glassmorphic Metric Counters with Circular Radial Progress Meters -->
                 <div class="grid-container">
-                    <div class="card" style="border-top-color: var(--accent-gold);">
-                        <div class="card-title">Presence Attendance Track</div>
-                        <div class="card-value">${attendanceRate}%</div>
-                        <div class="card-subtitle">Present days: ${presentCount}/${totalDaysEvaluated}</div>
+                    <!-- Card 1: Attendance Circular -->
+                    <div class="card" style="border: none; position: relative; box-shadow: var(--shadow-sm); display:flex; align-items:center; justify-content:space-between; padding: 20px;">
+                        <div>
+                            <div class="card-title">My Attendance</div>
+                            <div class="card-value" style="color: #a855f7; margin-top:2px;">${attendanceRate}%</div>
+                            <div class="card-subtitle">Validated logs</div>
+                        </div>
+                        <!-- Circular progress graphic -->
+                        <div style="position: relative; width: 62px; height: 62px;">
+                            <svg class="circular-progress-svg" style="transform: rotate(-90deg); width:62px; height:62px;">
+                                <circle cx="31" cy="31" r="25" class="bg-ring" style="fill:none; stroke:#f1f5f9; stroke-width:4;" />
+                                <circle cx="31" cy="31" r="25" class="fg-ring" style="fill:none; stroke:#a855f7; stroke-width:4; stroke-dasharray: 157; stroke-dashoffset: ${157 - (157 * Number(attendanceRate)) / 100};" />
+                            </svg>
+                        </div>
                     </div>
-                    <div class="card" style="border-top-color: #22c55e;">
-                        <div class="card-title">Paid Ledger Funds</div>
-                        <div class="card-value" style="color: #22c55e;">${paidTotal.toLocaleString()} ৳</div>
-                        <div class="card-subtitle">Completed fees</div>
+
+                    <!-- Card 2: Tuition Paid -->
+                    <div class="card" style="border: none; position: relative; box-shadow: var(--shadow-sm); display:flex; align-items:center; justify-content:space-between; padding: 20px;">
+                        <div>
+                            <div class="card-title">Completed Fees</div>
+                            <div class="card-value" style="color: #ec4899; margin-top:2px;">${paidTotal.toLocaleString()} ৳</div>
+                            <div class="card-subtitle">Tuition receipts</div>
+                        </div>
+                        <!-- Circular progress graphic -->
+                        <div style="position: relative; width: 62px; height: 62px;">
+                            <svg class="circular-progress-svg" style="transform: rotate(-90deg); width:62px; height:62px;">
+                                <circle cx="31" cy="31" r="25" style="fill:none; stroke:#f1f5f9; stroke-width:4;" />
+                                <circle cx="31" cy="31" r="25" style="fill:none; stroke:#ec4899; stroke-width:4; stroke-dasharray: 157; stroke-dashoffset: 20;" />
+                            </svg>
+                        </div>
                     </div>
-                    <div class="card" style="border-top-color: #ef4444;">
-                        <div class="card-title">Your Current Billing Dues</div>
-                        <div class="card-value" style="color: #ef4444;">${dueTotal.toLocaleString()} ৳</div>
-                        <div class="card-subtitle">Awaiting settlement</div>
+
+                    <!-- Card 3: Outstanding Bill -->
+                    <div class="card" style="border: none; position: relative; box-shadow: var(--shadow-sm); display:flex; align-items:center; justify-content:space-between; padding: 20px;">
+                        <div>
+                            <div class="card-title">Pending Settlement</div>
+                            <div class="card-value" style="color: #f97316; margin-top:2px;">${dueTotal.toLocaleString()} ৳</div>
+                            <div class="card-subtitle">Due invoices</div>
+                        </div>
+                        <!-- Circular progress graphic -->
+                        <div style="position: relative; width: 62px; height: 62px;">
+                            <svg class="circular-progress-svg" style="transform: rotate(-90deg); width:62px; height:62px;">
+                                <circle cx="31" cy="31" r="25" style="fill:none; stroke:#f1f5f9; stroke-width:4;" />
+                                <circle cx="31" cy="31" r="25" style="fill:none; stroke:#f97316; stroke-width:4; stroke-dasharray: 157; stroke-dashoffset: ${dueTotal > 0 ? 110 : 157};" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex-row-gap-md">
-                    <!-- General details -->
-                    <div class="card" style="flex:1; border-top-color: var(--primary-color);">
-                        <h3 style="color: var(--primary-color); font-weight: 700; margin-bottom: 12px;">👤 Student Profile Data</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
-                            <div>👤 <strong>Full Name:</strong> ${user.name}</div>
-                            <div>📝 <strong>Registration Roll:</strong> ${user.rollNumber}</div>
-                            <div>📚 <strong>Class Level:</strong> ${user.class}</div>
-                            <div>🎂 <strong>Date of Birth:</strong> ${Utils.formatDate(user.dob)}</div>
+                <div class="chart-flex-row" style="margin-top:25px;">
+                    <!-- Left: Profile Data Glassmorphic card -->
+                    <div class="chart-card-wrapper" style="flex:1;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 12px; display:flex; align-items:center; gap:6px;">
+                            <span>👤 Student Registry Profile</span>
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; background: #fff; padding: 15px; border-radius: 10px;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+                                <span style="color:#64748b;">Full Name:</span>
+                                <strong style="color: #334155;">${user.name}</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+                                <span style="color:#64748b;">Unique Roll ID:</span>
+                                <strong style="color: #334155;">#${user.rollNumber}</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+                                <span style="color:#64748b;">Assigned Class:</span>
+                                <strong style="color: #334155;">Grade ${user.class}</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+                                <span style="color:#64748b;">Academic Session:</span>
+                                <strong style="color: #334155;">2026-2027</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:#64748b;">Date of Birth:</span>
+                                <strong style="color: #334155;">${Utils.formatDate(user.dob)}</strong>
+                            </div>
                         </div>
                     </div>
-                    <!-- Urgent Notices -->
-                    <div class="card" style="flex:1.5; border-top-color: var(--accent-gold);">
-                        <h3 style="color: var(--primary-color); font-weight: 700; margin-bottom: 12px;">🕌 Notice Announcements</h3>
-                        ${notices.length === 0 ? `<p class="text-muted">No notices on board.</p>` : `
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                ${notices.slice(0, 2).map(n => `
-                                    <div style="background-color: var(--bg-light); border-left: 3px solid var(--accent-gold); padding: 12px; border-radius: 6px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+
+                    <!-- Right: Notice Board Announcements -->
+                    <div class="chart-card-wrapper" style="flex:1.4;">
+                        <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 12px; display:flex; align-items:center; gap:6px;">
+                            <span>📢 Announcements Post</span>
+                        </h3>
+                        ${notices.length === 0 ? `<p class="text-muted">No notifications posted by the school admin yet.</p>` : `
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${notices.slice(0, 2).map((n, idx) => `
+                                    <div class="priority-border-notice low" style="border-left-color: ${idx === 0 ? '#a855f7' : '#ec4899'}; padding:12px; background:#fff;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom:4px;">
+                                            <span class="badge priority-medium" style="background:${idx === 0 ? '#faf5ff' : '#fdf2f8'}; color:${idx === 0 ? '#a855f7' : '#ec4899'};">Audience: ${n.target}</span>
                                             <span>📅 ${n.date}</span>
                                         </div>
-                                        <h4 style="color: var(--primary-color);">${n.title}</h4>
-                                        <p style="font-size: 13px; margin-top: 4px;">${n.content}</p>
+                                        <h4 style="color:#1e293b; font-size:13.5px; font-weight:700;">${n.title}</h4>
+                                        <p style="font-size:12.5px; color:#64748b; margin-top:2px;">${n.content}</p>
                                     </div>
                                 `).join('')}
                             </div>

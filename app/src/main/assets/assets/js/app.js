@@ -80,7 +80,7 @@ const App = {
                     <input type="date" class="form-control" id="login-dob" required>
                 </div>
             `;
-        } else if (role === "teacher" || role === "schooladmin") {
+        } else if (role === "teacher" || role === "schooladmin" || role === "officeadmin") {
             inputsContainer.innerHTML = `
                 <div class="form-group">
                     <label class="form-label">User Email Address / ইমেইল</label>
@@ -113,7 +113,7 @@ const App = {
         if (role === "student") {
             credentials.rollNumber = document.getElementById("login-roll").value;
             credentials.dob = document.getElementById("login-dob").value;
-        } else if (role === "teacher" || role === "schooladmin") {
+        } else if (role === "teacher" || role === "schooladmin" || role === "officeadmin") {
             credentials.email = document.getElementById("login-email").value;
             credentials.password = document.getElementById("login-password").value;
         } else if (role === "superadmin") {

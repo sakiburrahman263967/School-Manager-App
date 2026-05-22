@@ -71,6 +71,34 @@ const Auth = {
             return { success: false, message: "Invalid School Admin credentials!" };
         }
 
+        // TIER 2.5: OFFICE / STAFF ADMIN
+        if (role === "officeadmin") {
+            if (credentials.email.toLowerCase() === "office@bayan.edu" && credentials.password === "admin123") {
+                const user = {
+                    role: "officeadmin",
+                    schoolId: school.id,
+                    schoolName: school.name,
+                    name: "Office Staff Coordinator",
+                    email: credentials.email
+                };
+                this.setActiveUser(user);
+                return { success: true, user };
+            }
+            // Allow master school admin credentials to also log in as office admin
+            if (school.adminEmail.toLowerCase() === credentials.email.toLowerCase() && school.adminPassword === credentials.password) {
+                const user = {
+                    role: "officeadmin",
+                    schoolId: school.id,
+                    schoolName: school.name,
+                    name: "Office Administrator",
+                    email: school.adminEmail
+                };
+                this.setActiveUser(user);
+                return { success: true, user };
+            }
+            return { success: false, message: "Invalid Office Staff credentials! Tip: Use office@bayan.edu with admin123" };
+        }
+
         // TIER 3: TEACHER
         if (role === "teacher") {
             const teachers = Storage.getSchoolData(schoolId, "teachers");
