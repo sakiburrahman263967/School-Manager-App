@@ -1,0 +1,6 @@
+{
+  "name": "Madrasah ERP",
+  "description": "A comprehensive Islamic-themed multi-tenant School Management System (SaaS) with Bengali support, role-based controls, PDF exporting, and fully isolative storage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

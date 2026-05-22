@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Madrasah ERP SaaS</title>
+    <!-- Master style resources -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Set up print layout optimization -->
+    <style>
+        @media print {
+            body { 
+                margin: 0; 
+                padding: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Target app shell loaded dynamically via Javascript -->
+    <div id="app-shell">
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f9f8f4; color: #1b5e20; font-family: system-ui; font-weight: 700;">
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px; animation: pulse 1.5s infinite;">🕌</div>
+                <div>বিসমিল্লাহির রাহমানির রাহিম</div>
+                <div style="font-size: 14px; font-weight: normal; color: #64748b; margin-top: 8px;">Loading Madrasah ERP...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script assets sequence loading -->
+    <script src="database/schema.js"></script>
+    <script src="database/seedData.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/router.js"></script>
+    <script src="exports/pdf.js"></script>
+    <script src="assets/js/app.js"></script>
+
+</body>
+</html>
